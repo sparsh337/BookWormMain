@@ -49,3 +49,12 @@ src/main/resources/application-prod.properties
 .mvn/
 mvnw
 mvnw.cmd
+
+# .NET
+bin/
+obj/
+*.exe
+*.pdb
+*.user
+*.lock.json
+

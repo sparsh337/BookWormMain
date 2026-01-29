@@ -1,10 +1,12 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+// Terms import removed
 import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
@@ -19,6 +21,29 @@ import ProtectedRoute from './components/ProtectedRoute';
 import OAuth2Redirect from './pages/OAuth2Redirect';
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [isTermsChecked, setIsTermsChecked] = useState(false);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const urlAccepted = searchParams.get('accepted') === 'true';
+    const storedAccepted = localStorage.getItem('termsAccepted');
+
+    if (urlAccepted) {
+      localStorage.setItem('termsAccepted', 'true');
+      window.history.replaceState({}, document.title, location.pathname);
+      setIsTermsChecked(true);
+    } else if (storedAccepted === 'true') {
+      setIsTermsChecked(true);
+    } else {
+      window.location.href = 'http://localhost:5001/terms-page';
+    }
+  }, [location]);
+
+  if (!isTermsChecked) return null; // Or a loading spinner
+
   return (
     <>
       <Routes>
