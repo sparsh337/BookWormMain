@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: bookworm_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: bookworm_master
+    ports:
+      - "3308:3306" # Expose on 3308 to avoid conflict if local MySQL is running on 3306
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    networks:
+      - bookworm_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend (Spring Boot)
+  backend:
+    build: ./BOOKWORM
+    container_name: bookworm_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Override DB URL to point to 'db' service
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/bookworm_master?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      # Override media path to absolute path in container
+      BOOKWORM_MEDIA_PATH: /app/media/
+    ports:
+      - "8081:8080"
+    volumes:
+      - ../media:/app/media
+    networks:
+      - bookworm_net
+
+  # Frontend (React)
+  frontend:
+    build: ./Frontend
+    container_name: bookworm_frontend
+    ports:
+      - "3000:80" # Map host 3000 to container 80 (nginx)
+    depends_on:
+      - backend
+    networks:
+      - bookworm_net
+
+volumes:
+  db_data:
+  media_data:
+
+networks:
+  bookworm_net:
+    driver: bridge
