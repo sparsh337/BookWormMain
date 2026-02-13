@@ -1,48 +1,141 @@
-# Bookworm v7 - Deployment Guide
+# 📚 BookWorm
 
-This document explains how to package and deploy the Bookworm backend application.
+BookWorm is a full-stack e-commerce and library management application designed for book lovers. It allows users to browse, purchase, rent, and manage books in their personal digital library. The platform features a responsive React frontend and a robust Spring Boot backend.
 
-## 🛠️ 1. Building the Application
+## 🚀 Features
 
-### Frontend (React + Vite)
-Go to `Backend/Frontend` and run:
-```bash
-npm run build
-```
-This generates a `dist/` folder containing your production-ready website.
+*   **User Authentication**: Secure sign-up and login, including Google OAuth2 integration.
+*   **Book Browsing**: Search and filter books by genre, author, and more.
+*   **E-commerce**: Add books to cart, checkout, and purchase functionality (generating PFD invoices).
+*   **Library Management**: "My Shelf" feature to view purchased books.
+*   **Renting System**: Rent books for a specific period.
+*   **Membership Plans**: Subscribe to library plans (Silver, Gold, Platinum).
+*   **Admin Dashboard**: Manage books, users, and orders.
+*   **Responsive Design**: Modern UI built with React and Tailwind/CSS.
 
-### Backend (Java + Spring Boot)
-To create a JAR file, run the following command from the `Backend/BOOKWORM` directory:
-```bash
-mvn clean package -DskipTests
-```
-This will generate a JAR file in the `target/` directory.
+## 🛠️ Tech Stack
 
-> [!NOTE]
-> **To serve the frontend from the backend (Single JAR):** Copy the contents of the frontend `dist/` folder into `Backend/BOOKWORM/src/main/resources/static/` before running the Maven package command.
+*   **Frontend**: React.js (Vite), JavaScript, HTML5, CSS3, Axios
+*   **Backend**: Java (Spring Boot), Spring Security, Spring Data JPA
+*   **Database**: MySQL
+*   **Containerization**: Docker, Docker Compose
+*   **Build Tools**: Maven (Backend), npm (Frontend)
 
-## 📁 2. Recommended Deployment Structure
-To keep things clean, it is recommended to create a dedicated "Release" or "Production" folder and structure it as follows:
+## 📋 Prerequisites
 
-```text
-/Release/
-  ├── bookworm.jar           (The compiled JAR from your target folder)
-  └── media/                 (The external media folder)
-        ├── ebooks/          (PDF files)
-        ├── audiobooks/      (MP3 files)
-        └── covers/          (JPG/PNG cover images)
-```
+Ensure you have the following installed:
 
-## 🚀 3. How to Run the JAR File
-Because different environments (local dev vs. server) might have the folders in different places, the best way to run the JAR is by passing the absolute path to the media folder as a command-line argument. This overrides whatever is set in the `application.properties` file.
-
-### Run Command:
-```bash
-java -jar bookworm.jar --bookworm.media.path=./media/
-```
-
-> [!TIP]
-> Using `./media/` works if the `media/` folder is in the same directory as the JAR file. For maximum reliability on a production server, you can provide the full absolute path such as `/opt/bookworm/media/`.
+*   **Java 17+**
+*   **Node.js (v16+) & npm**
+*   **MySQL Server**
+*   **Docker Desktop** (Optional, for containerized run)
 
 ---
-*Note: This setup uses "Strategy #1: External File System Storage" to keep the build artifacts lightweight and allow for dynamic content updates without recompilation.*
+
+## ⚙️ Configuration & Secrets (CRITICAL)
+
+**IMPORTANT:** This repository does **NOT** contain sensitive credentials (database passwords, API keys, etc.). You must create the following configuration files manually before running the application.
+
+### 1. Backend Secrets (`application-secret.properties`)
+
+Create a file named `application-secret.properties` in the following directory:
+`Backend/BOOKWORM/src/main/resources/`
+
+Add your secrets to this file:
+
+```properties
+# Database Password
+spring.datasource.password=YOUR_DB_PASSWORD
+
+# Google OAuth2 Client Secret
+spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
+
+# Email Service Password (App Password for Gmail)
+spring.mail.password=YOUR_EMAIL_APP_PASSWORD
+```
+
+### 2. Docker Secrets (`.env`)
+
+If running with Docker, create a `.env` file in the `Backend/` directory:
+
+```env
+# MySQL Database Password
+DB_PASSWORD=YOUR_DB_PASSWORD
+```
+
+---
+
+## 🏃‍♂️ Running Locally (Manual Setup)
+
+### 1. Database Setup
+1.  Create a MySQL database named `bookworm_master`.
+2.  Import the initial data from `seed_data.sql` located in the root directory.
+
+### 2. Backend (Spring Boot)
+Open a terminal in `Backend/BOOKWORM`:
+
+```bash
+# Clean and install dependencies
+mvn clean install
+
+# Run the application
+mvn spring-boot:run
+```
+The backend will start on `http://localhost:8080`.
+
+### 3. Frontend (React)
+Open a new terminal in `Backend/Frontend`:
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+```
+The frontend will start on `http://localhost:5173` (or as specified).
+
+---
+
+## 🐳 Running with Docker
+
+This is the easiest way to run the full stack (Database + Backend + Frontend).
+
+1.  Ensure Docker Desktop is running.
+2.  Navigate to the `Backend/` directory.
+3.  Ensure you have created the `.env` file as described in the **Configuration** section.
+4.  Run:
+
+```bash
+docker-compose up --build
+```
+
+Access the application at `http://localhost:3000`.
+
+---
+
+## 📂 Project Structure
+
+```text
+/
+├── Backend/
+│   ├── BOOKWORM/      (Spring Boot Application)
+│   ├── Frontend/      (React Application)
+│   ├── database/      (Database init scripts for Docker)
+│   ├── docker-compose.yml
+│   └── .env           (You create this!)
+├── media/             (Book covers, PDFs, Audio files)
+├── seed_data.sql      (Initial database schema & data)
+└── README.md
+```
+
+## 🤝 Contributing
+
+1.  Fork the repository.
+2.  Create a new branch (`git checkout -b feature/YourFeature`).
+3.  Commit your changes (`git commit -m 'Add some feature'`).
+4.  Push to the branch (`git push origin feature/YourFeature`).
+5.  Open a Pull Request.
+
+---
+**Note**: The implementation details for external file storage are configured in `application.properties` pointing to the `../media` directory relative to the backend execution context.
