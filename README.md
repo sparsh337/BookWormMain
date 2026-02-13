@@ -119,14 +119,45 @@ Access the application at `http://localhost:3000`.
 ```text
 /
 ├── Backend/
-│   ├── BOOKWORM/      (Spring Boot Application)
-│   ├── Frontend/      (React Application)
-│   ├── database/      (Database init scripts for Docker)
-│   ├── docker-compose.yml
-│   └── .env           (You create this!)
-├── media/             (Book covers, PDFs, Audio files)
-├── seed_data.sql      (Initial database schema & data)
-└── README.md
+│   ├── .env                    (Docker environment variables - Create manually!)
+│   ├── docker-compose.yml      (Docker orchestration)
+│   ├── HOW_TO_RUN_DOCKER.md    (Docker instructions)
+│   ├── database/               (Database initialization scripts)
+│   ├── BOOKWORM/               (Spring Boot Backend)
+│   │   ├── Dockerfile          (Backend container definition)
+│   │   ├── pom.xml             (Maven dependencies)
+│   │   ├── mvnw / mvnw.cmd     (Maven Wrapper)
+│   │   └── src/                (Java source code)
+│   │       ├── main/
+│   │       │   ├── java/com/example/
+│   │   │   │   │   ├── config/     (Security, CORS, & App Config)
+│   │   │   │   │   ├── controller/ (REST API Controllers)
+│   │   │   │   │   ├── dto/        (Data Transfer Objects)
+│   │   │   │   │   ├── model/      (JPA Entities)
+│   │   │   │   │   ├── repository/ (Data Access Layer)
+│   │   │   │   │   ├── service/    (Business Logic)
+│   │   │   │   │   └── util/       (Utility Classes like JWT)
+│   │       │   └── resources/
+│   │       │       ├── application.properties        (Main config)
+│   │       │       └── application-secret.properties (Secrets - Create manually!)
+│   └── Frontend/               (React Frontend)
+│       ├── Dockerfile          (Frontend container definition)
+│       ├── nginx.conf          (Nginx configuration for production)
+│       ├── package.json        (Npm dependencies)
+│       ├── vite.config.js      (Vite configuration)
+│       ├── public/             (Static assets)
+│       └── src/                (React source code)
+│           ├── api/            (Axios instances & API calls)
+│           ├── components/     (Reusable UI components)
+│           ├── context/        (React Context for Auth, Cart, etc.)
+│           ├── pages/          (Application pages like Login, Library, etc.)
+│           └── App.jsx         (Main application component)
+├── media/                      (External Media Storage)
+│   ├── audiobooks/             (MP3 files)
+│   ├── covers/                 (Book cover images)
+│   └── ebooks/                 (PDF files)
+├── seed_data.sql               (Initial database schema & data)
+└── README.md                   (Project documentation)
 ```
 
 ## 🤝 Contributing
